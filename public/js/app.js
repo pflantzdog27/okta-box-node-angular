@@ -1,0 +1,1 @@
+angular.module('boxApp', ['ngRoute', 'appRoutes', 'angularMoment', 'LoginCtrl', 'MainCtrl','FolderCtrl', 'FolderService']);

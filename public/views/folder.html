@@ -1,0 +1,23 @@
+<div class="jumbotron text-center">
+    <h1>{{folderName}}</h1>
+</div>
+<section>
+    <table class="table table-striped table-responsive table-hover" class="drop-box">   
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Modified</th>
+                <th>ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="entry in files">
+                <td><span class="glyphicon file-type" ng-class="{'glyphicon-file' : entry.type == 'file','glyphicon-folder-open' : entry.type == 'folder' }"></span></td>
+                <td ng-class="{link: entry.type != 'file'}" ng-click="entry.type == 'file'  || go(entry.id,entry.name)">{{entry.name}}<br><span class="title-meta-data">Created {{entry.created_at | amParse:'YYYY-MM-DDTHH:mm-ss' | amDateFormat:'MMM DD, YYYY'}} By {{entry.created_by.name}}</span></td>
+                <td><span am-time-ago="entry.modified_at | amParse:'YYYY-MM-DDTHH:mm-ss'"></span><br><span class="title-meta-data">By {{entry.modified_by.name}}</span></td>
+                <td>{{entry.id}}</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
