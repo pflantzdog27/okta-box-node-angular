@@ -16,6 +16,7 @@
         <script src="js/layout.js"></script>
         <!-- angular custom -->
         <script src="js/services/FolderService.js"></script>
+        <script src="js/services/MainService.js"></script>
         <script src="js/controllers/LoginCtrl.js"></script>
         <script src="js/controllers/MainCtrl.js"></script>
         <script src="js/controllers/FolderCtrl.js"></script>
@@ -40,9 +41,9 @@
             <a href="#0" id="nav-trigger" class="visible-xs">Menu<span></span></a>
             <!-- NAVBAR -->
             <nav id="navbar">
-                <ul class="top-nav list-unstyled list-inline">
-                    <!--<li><a href="#0"><span class="glyphicon glyphicon-user"></span></a></li>-->
-                    <li><a href="#0"><span class="glyphicon glyphicon-log-out"></span></a></li>
+                <ul class="top-nav list-unstyled list-inline" ng-show="currentuser">
+                    <li><span class="glyphicon glyphicon-user"></span> {{currentuser.name}}</li>
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span></a></li>
                 </ul>
             </nav>
         </header> 
@@ -51,7 +52,8 @@
             <main id="main-content">
                 <nav id="side-nav">
                     <ul>
-                        <li><a href="#"><i class="glyphicon glyphicon-floppy-disk"></i><span>Nav Item</span></a></li>
+                        <li><a href="/home"><i class="glyphicon glyphicon-home"></i><span>Home</span></a></li>
+                        <li><a href="/folder/0"><i class="glyphicon glyphicon-file"></i><span>Files</span></a></li>
                     </ul>
                 </nav>
                 <div class="content-wrapper">

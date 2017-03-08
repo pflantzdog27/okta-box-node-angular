@@ -1,6 +1,7 @@
 var auth = require('./auth');
 var path = require('path'),
     util = require('util'),
+    fs = require('fs'),
     BoxSDK = require('box-node-sdk'),
     sdk = new BoxSDK({
         clientID: process.env.CLIENT_ID,
@@ -10,38 +11,38 @@ var path = require('path'),
 			privateKey: fs.readFileSync(path.resolve(__dirname, process.env.PRIVATE_KEY_PATH)),
 			passphrase: process.env.PRIVATE_KEY_PASSPHRASE
 		}
-    }),
-    //adminAPIClient = sdk.getAppAuthClient('enterprise', process.env.ENTERPRISE_ID);
-    devToken = 'Vm0B2KLlWI0dGbgSy5eTYl9HC1TgkXwI';
-
-
-module.exports = function(app) {
-
-    // MIDDLEWARE ==================== 
-    app.use(function(req,res,next) {
-        //create a basic API client -- ultimately this needs to be updated to use a persistent client but I can't figure that out yet
-        req.sdk = sdk.getBasicClient(devToken);
-        next();
     });
     
+module.exports = function(app) {
+    
     app.post('/login/callback', auth.authenticate('saml', { failureRedirect: '/', failureFlash: true }), function (req, res) {
-        res.redirect('/home');
+        res.redirect('/');
     });
 
     app.get('/login', auth.authenticate('saml', { failureRedirect: '/', failureFlash: true }), function (req, res) {
-        res.redirect('/home');
+        res.redirect('/');
+    });
+    app.get('/logout', function (req, res){
+        req.logout();
+        req.session.destroy();
+        res.redirect('/');
     });
 
-    //required to be after /login /post urls or else it will be endless redirects
+    // MUST BE AFTER /login /post urls or else it will be endless redirects =========
     app.use(auth.protected);
+    // MIDDLEWARE ==================== 
+    app.use(auth.protected, function(req,res,next) {
+        userAPIClient = sdk.getAppAuthClient('user', req.session.passport.user);
+        next();
+    });
 
     app.get('/', auth.protected, function (req, res){
-          res.end("Hello " + req.session.passport.user);
+          res.redirect('/home');
     });
 
     app.get('/api/folder/:id', auth.protected, function(req,res) {
         var id = req.params.id;
-        req.sdk.folders.getItems(
+        userAPIClient.folders.getItems(
             id, 
             {
                 fields: 'name,modified_at,modified_by,created_at,created_by,size,url,permissions,sync_state',
@@ -61,6 +62,24 @@ module.exports = function(app) {
             }
         );
     });
+    
+    app.get('/api/user', auth.protected, function(req,res) {
+        userAPIClient.users.get(userAPIClient.CURRENT_USER_ID, null, function(err,data) {
+                if(err) {
+                    res.json({
+                        error: err,
+                        errorDetails: util.inspect(err)
+                    })
+                    return;
+                }
+                res.json({
+                    user: data
+                });
+            }
+        );
+    });
+    
+    // for security concerns - will need to block routes to /api/ here *********
 
     app.get('*',function(req,res) {
         res.sendFile(path.join(__dirname,'../public/views/index.html')); 

@@ -30,7 +30,8 @@ app.use(session({
   },
   resave: true,
   saveUninitialized: true,
-  secret: "won't tell because it's secret"
+  secret: "won't tell because it's secret",
+  unset: "destroy"
 }));
 app.use(auth.initialize());
 app.use(auth.session());
